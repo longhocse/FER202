@@ -1,40 +1,52 @@
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 
+// =======================
 // 1️⃣ State ban đầu
-const initialState = { isShowModal: false };
+// =======================
+const initialState = {
+  isShowModal: false,
+  isConfirmed: false,
+};
 
+// =======================
 // 2️⃣ Reducer xử lý action
-function modalReducer(state, action) {
+// =======================
+function reducer(state, action) {
   switch (action.type) {
     case "OPEN_MODAL":
-      return { isShowModal: true };
+      return { ...state, isShowModal: true, isConfirmed: false };
 
     case "CLOSE_MODAL":
-      return { isShowModal: false };
+      return { ...state, isShowModal: false };
+
+    case "CONFIRM_ORDER":
+      return { ...state, isConfirmed: true };
 
     default:
       throw new Error("Unknown action type");
   }
 }
 
+// =======================
+// 3️⃣ Component
+// =======================
 function XuLyDonHangModal() {
-  // 3️⃣ Dùng reducer
-  const [state, dispatch] = useReducer(modalReducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const handleConfirm = () => {
-    alert("Duyệt đơn hàng thành công!");
-    dispatch({ type: "CLOSE_MODAL" });
-  };
+  // Xử lý khi xác nhận thành công
+  useEffect(() => {
+    if (state.isConfirmed) {
+      alert("Duyệt đơn hàng thành công!");
+      dispatch({ type: "CLOSE_MODAL" });
+    }
+  }, [state.isConfirmed]);
 
   return (
     <div>
-      <h3>Exercise 2 - Xử lý đơn hàng (useReducer)</h3>
+      <h3>Exercise 2 - Modal xác nhận đơn hàng</h3>
 
-      <Button
-        variant="warning"
-        onClick={() => dispatch({ type: "OPEN_MODAL" })}
-      >
+      <Button variant="warning" onClick={() => dispatch({ type: "OPEN_MODAL" })}>
         Xử lý đơn hàng
       </Button>
 
@@ -58,7 +70,10 @@ function XuLyDonHangModal() {
           >
             Hủy
           </Button>
-          <Button variant="success" onClick={handleConfirm}>
+          <Button
+            variant="success"
+            onClick={() => dispatch({ type: "CONFIRM_ORDER" })}
+          >
             Xác nhận
           </Button>
         </Modal.Footer>

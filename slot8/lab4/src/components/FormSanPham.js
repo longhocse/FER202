@@ -1,62 +1,53 @@
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import { Button, Form } from "react-bootstrap";
 
-// 1️⃣ State ban đầu
 const initialState = {
-  draft: {
-    name: "",
-    price: "",
-    category: "",
-  },
-  product: null, // chỉ lưu khi bấm Lưu
-  errors: {},
+  name: "",
+  price: "",
+  category: "",
 };
 
-// 2️⃣ Reducer
 function formReducer(state, action) {
   switch (action.type) {
-    case "UPDATE_FIELD":
-      return {
-        ...state,
-        draft: { ...state.draft, [action.field]: action.value },
-      };
-
-    case "SET_ERRORS":
-      return { ...state, errors: action.payload };
-
-    case "SAVE_PRODUCT":
-      return {
-        ...state,
-        product: state.draft,
-        errors: {},
-      };
-
+    case "CHANGE_INPUT":
+      return { ...state, [action.field]: action.value };
+    case "RESET_FORM":
+      return initialState;
     default:
-      throw new Error("Unknown action");
+      return state;
   }
 }
 
 function FormSanPham() {
-  const [state, dispatch] = useReducer(formReducer, initialState);
+  const [form, dispatch] = useReducer(formReducer, initialState);
+  const [errors, setErrors] = useState({});
+  const [savedData, setSavedData] = useState(null); // chỉ dùng để hiển thị output sau khi lưu
 
-  // 3️⃣ Validate khi bấm lưu
+  const handleChange = (e) => {
+    dispatch({
+      type: "CHANGE_INPUT",
+      field: e.target.name,
+      value: e.target.value,
+    });
+  };
+
+  const validate = () => {
+    let newErrors = {};
+    if (!form.name.trim()) newErrors.name = "Chưa nhập tên sản phẩm";
+    if (!form.price) newErrors.price = "Chưa nhập giá";
+    if (!form.category) newErrors.category = "Chưa chọn danh mục";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!validate()) return;
 
-    const { name, price, category } = state.draft;
-    const errors = {};
-
-    if (!name.trim()) errors.name = "Vui lòng nhập tên sản phẩm";
-    if (!price || Number(price) <= 0) errors.price = "Giá phải lớn hơn 0";
-    if (!category) errors.category = "Vui lòng chọn danh mục";
-
-    if (Object.keys(errors).length > 0) {
-      dispatch({ type: "SET_ERRORS", payload: errors });
-      return;
-    }
-
-    dispatch({ type: "SAVE_PRODUCT" });
     alert("Lưu sản phẩm thành công!");
+    setSavedData(form); // 👉 chỉ lúc này mới có output
+    dispatch({ type: "RESET_FORM" });
+    setErrors({});
   };
 
   return (
@@ -67,54 +58,37 @@ function FormSanPham() {
         <Form.Group className="mb-3">
           <Form.Label>Tên sản phẩm</Form.Label>
           <Form.Control
-            value={state.draft.name}
-            onChange={(e) =>
-              dispatch({
-                type: "UPDATE_FIELD",
-                field: "name",
-                value: e.target.value,
-              })
-            }
-            isInvalid={!!state.errors.name}
-            placeholder="Nhập tên sản phẩm..."
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            isInvalid={!!errors.name}
           />
           <Form.Control.Feedback type="invalid">
-            {state.errors.name}
+            {errors.name}
           </Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Giá</Form.Label>
           <Form.Control
+            name="price"
             type="number"
-            value={state.draft.price}
-            onChange={(e) =>
-              dispatch({
-                type: "UPDATE_FIELD",
-                field: "price",
-                value: e.target.value,
-              })
-            }
-            isInvalid={!!state.errors.price}
-            placeholder="Nhập giá..."
+            value={form.price}
+            onChange={handleChange}
+            isInvalid={!!errors.price}
           />
           <Form.Control.Feedback type="invalid">
-            {state.errors.price}
+            {errors.price}
           </Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Danh mục</Form.Label>
           <Form.Select
-            value={state.draft.category}
-            onChange={(e) =>
-              dispatch({
-                type: "UPDATE_FIELD",
-                field: "category",
-                value: e.target.value,
-              })
-            }
-            isInvalid={!!state.errors.category}
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            isInvalid={!!errors.category}
           >
             <option value="">-- Chọn danh mục --</option>
             <option value="food">Food</option>
@@ -122,7 +96,7 @@ function FormSanPham() {
             <option value="other">Other</option>
           </Form.Select>
           <Form.Control.Feedback type="invalid">
-            {state.errors.category}
+            {errors.category}
           </Form.Control.Feedback>
         </Form.Group>
 
@@ -131,9 +105,10 @@ function FormSanPham() {
         </Button>
       </Form>
 
-      {state.product && (
+      {/* OUTPUT chỉ hiện sau khi bấm Lưu thành công */}
+      {savedData && (
         <pre className="mt-3 bg-light p-3 rounded">
-          {JSON.stringify(state.product, null, 2)}
+          {JSON.stringify(savedData, null, 2)}
         </pre>
       )}
     </div>

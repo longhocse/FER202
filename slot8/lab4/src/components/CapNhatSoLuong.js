@@ -1,20 +1,20 @@
 import { useReducer } from "react";
 import { Button, Form, InputGroup } from "react-bootstrap";
 
-// 1️⃣ State ban đầu
-const initialState = { quantity: 1 };
+// 1️⃣ State ban đầu đúng theo đề
+const initialState = { count: 0 };
 
-// 2️⃣ Reducer xử lý action
-function reducerQuantity(state, action) {
+// 2️⃣ Reducer xử lý action đúng tên đề bài
+function reducer(state, action) {
   switch (action.type) {
-    case "INCREASE":
-      return { quantity: state.quantity + 1 };
+    case "INCREMENT":
+      return { count: state.count + 1 };
 
-    case "DECREASE":
-      return { quantity: state.quantity > 1 ? state.quantity - 1 : 1 };
+    case "DECREMENT":
+      return { count: Math.max(0, state.count - 1) };
 
     case "SET_INPUT":
-      return { quantity: action.payload >= 1 ? action.payload : 1 };
+      return { count: Math.max(0, action.payload) };
 
     default:
       throw new Error("Unknown action type");
@@ -22,24 +22,23 @@ function reducerQuantity(state, action) {
 }
 
 function CapNhatSoLuong() {
-  // 3️⃣ Dùng reducer
-  const [state, dispatch] = useReducer(reducerQuantity, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
     <div>
-      <h3>Exercise 1 - Cập nhật số lượng (useReducer)</h3>
+      <h3>Exercise 1 - Chỉnh sửa số lượng (useReducer)</h3>
 
       <InputGroup style={{ maxWidth: "260px" }}>
         <Button
           variant="secondary"
-          onClick={() => dispatch({ type: "DECREASE" })}
+          onClick={() => dispatch({ type: "DECREMENT" })}
         >
           -
         </Button>
 
         <Form.Control
           type="number"
-          value={state.quantity}
+          value={state.count}
           onChange={(e) =>
             dispatch({
               type: "SET_INPUT",
@@ -50,7 +49,7 @@ function CapNhatSoLuong() {
 
         <Button
           variant="primary"
-          onClick={() => dispatch({ type: "INCREASE" })}
+          onClick={() => dispatch({ type: "INCREMENT" })}
         >
           +
         </Button>
