@@ -1,38 +1,56 @@
-
-import { useState } from "react";
+import { useReducer } from "react";
 import { Button, Card, Col, Container, Form, ListGroup, Row } from "react-bootstrap";
 
+// 1️⃣ State ban đầu
+const initialState = {
+  task: "",
+  todos: [],
+};
+
+// 2️⃣ Reducer xử lý action
+function todoReducer(state, action) {
+  switch (action.type) {
+    case "SET_TASK":
+      return { ...state, task: action.payload };
+
+    case "ADD_TODO":
+      if (state.task.trim() === "") return state;
+
+      const newTodo = {
+        id: Date.now(),
+        title: state.task.trim(),
+      };
+
+      return {
+        ...state,
+        todos: [newTodo, ...state.todos],
+        task: "",
+      };
+
+    case "DELETE_TODO":
+      return {
+        ...state,
+        todos: state.todos.filter((t) => t.id !== action.payload),
+      };
+
+    default:
+      throw new Error("Unknown action type");
+  }
+}
+
 function TodoList() {
-
-  const [task, setTask] = useState("");
-  const [todos, setTodos] = useState([]);
-
-  const addTodo = () => {
-    const trimmed = task.trim();
-    if (trimmed === "") return;
-
-    const newTodo = {
-      id: Date.now(),     
-      title: trimmed,
-    };
-
-    setTodos([newTodo, ...todos]);
-    setTask("");
-  };
-
-  const deleteTodo = (id) => {
-    setTodos(todos.filter((t) => t.id !== id));
-  };
+  // 3️⃣ Dùng reducer
+  const [state, dispatch] = useReducer(todoReducer, initialState);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addTodo();
+    dispatch({ type: "ADD_TODO" });
   };
 
   return (
     <div
       style={{
-        background: "#2f343c",  
+        background: "#2f343c",
         minHeight: "360px",
       }}
     >
@@ -42,8 +60,10 @@ function TodoList() {
             <Form onSubmit={handleSubmit} className="d-flex gap-3">
               <Form.Control
                 placeholder="Please input a Task"
-                value={task}
-                onChange={(e) => setTask(e.target.value)}
+                value={state.task}
+                onChange={(e) =>
+                  dispatch({ type: "SET_TASK", payload: e.target.value })
+                }
                 style={{ maxWidth: 420 }}
               />
               <Button variant="danger" type="submit">
@@ -57,12 +77,12 @@ function TodoList() {
               <Card.Header className="text-center fw-bold">Todo List</Card.Header>
 
               <ListGroup variant="flush">
-                {todos.length === 0 ? (
+                {state.todos.length === 0 ? (
                   <ListGroup.Item className="text-muted">
                     Chưa có công việc nào.
                   </ListGroup.Item>
                 ) : (
-                  todos.map((t) => (
+                  state.todos.map((t) => (
                     <ListGroup.Item
                       key={t.id}
                       className="d-flex justify-content-between align-items-center"
@@ -71,7 +91,9 @@ function TodoList() {
                       <Button
                         variant="danger"
                         size="sm"
-                        onClick={() => deleteTodo(t.id)}
+                        onClick={() =>
+                          dispatch({ type: "DELETE_TODO", payload: t.id })
+                        }
                       >
                         Delete
                       </Button>

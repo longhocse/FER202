@@ -7,27 +7,17 @@ import { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 
 function XuLyDonHangModal() {
-  // --------------------------------------------
-  // Bước 1: Khai báo useState
-  // --------------------------------------------
-  // isShowModal: trạng thái hiển thị Modal (true/false)
+
   const [isShowModal, setIsShowModal] = useState(false);
 
-  // --------------------------------------------
-  // Bước 2: Xử lý hành động (sự kiện)
-  // --------------------------------------------
-
-  // Click nút "Xử lý đơn hàng" -> Mở Modal
   const openModal = () => {
     setIsShowModal(true);
   };
 
-  // Click "Hủy" hoặc (X) -> Đóng Modal
   const closeModal = () => {
     setIsShowModal(false);
   };
 
-  // Click "Xác nhận" -> alert thành công và tự đóng Modal
   const handleConfirm = () => {
     alert("Duyệt đơn hàng thành công!");
     closeModal();
