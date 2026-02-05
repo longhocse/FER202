@@ -1,10 +1,8 @@
 import { useReducer } from "react";
 import { Button, Form, InputGroup } from "react-bootstrap";
 
-// 1️⃣ State ban đầu đúng theo đề
 const initialState = { count: 0 };
 
-// 2️⃣ Reducer xử lý action đúng tên đề bài
 function reducer(state, action) {
   switch (action.type) {
     case "INCREMENT":
