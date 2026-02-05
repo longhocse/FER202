@@ -26,6 +26,10 @@ function NavBarPizza() {
                         <Nav.Link as={NavLink} to="/register">
                             Đăng Ký Form
                         </Nav.Link>
+                        <NavLink to="/quiz" className="nav-link">
+  Quiz
+</NavLink>
+
                     </Nav>
                 </Navbar.Collapse>  
             </Container>
